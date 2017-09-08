@@ -57,9 +57,8 @@ module.exports = function (config, windowParams) {
       function onCallback(url) {
         var url_parts = nodeUrl.parse(url, true);
         var query = url_parts.query;
-        var code = query.code;
+        var code = query.approvalCode;
         var error = query.error;
-
         if (error !== undefined) {
           reject(error);
           authWindow.removeAllListeners('closed');
@@ -130,9 +129,25 @@ module.exports = function (config, windowParams) {
     });
   }
 
+  function callGoogleApi(token, url) {
+    const header = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    };
+    return fetch(url, {
+      method: 'GET',
+      headers: header
+    }).then(res => {
+      return res.json();
+    });
+  }
+
   return {
     getAuthorizationCode: getAuthorizationCode,
     getAccessToken: getAccessToken,
-    refreshToken: refreshToken
+    refreshToken: refreshToken,
+    tokenRequest: tokenRequest,
+    callGoogleApi: callGoogleApi,
   };
 };
